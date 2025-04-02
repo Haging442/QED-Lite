@@ -22,5 +22,5 @@ cd tpm2-tss-3.1.0/ && ./configure && sudo make install -j8
 wget https://github.com/tpm2-software/tpm2-tools/releases/download/4.3.2/tpm2-tools-4.3.2.tar.gz
 
 # extract, configure, install
-tar -xzvf tpm2-tools-4.3.2.tar.gz && cd tpm2-tools-4.3.2/ && ./configure &&sudo make install -j8
+tar -xzvf tpm2-tools-4.3.2.tar.gz && cd tpm2-tools-4.3.2/ && ./configure && sudo make install -j8
 
