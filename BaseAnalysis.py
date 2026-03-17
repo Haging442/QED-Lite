@@ -11,13 +11,9 @@ class BaseAnalysis(object):
         self.crypto_lib = dict()
         self.elf_files = []
 
-        self.min_num_crypto_apis = 100000
-
         for idx, lib in enumerate(self.crypto_lib_desc):
             regex = re.compile(lib['elfname'])
             self.crypto_lib_desc[idx]['regex'] = regex
-            if len(self.crypto_lib_desc[idx]['APIs']) < self.min_num_crypto_apis:
-                self.min_num_crypto_apis = len(self.crypto_lib_desc[idx]['APIs'])
 
     def gen_report(self, output_folder=None):
         pass
@@ -68,8 +64,6 @@ class BaseAnalysis(object):
 
             output_lines = result.stdout.split('\n')
             output_lines = output_lines[4:]
-            #if len(output_lines) < self.min_num_crypto_apis:
-            #    return None
             symbol_names = []
 
             for _, line in enumerate(output_lines):

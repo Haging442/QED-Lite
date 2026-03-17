@@ -10,17 +10,6 @@ HYBRID             = "HYBRID"
 PQC_READY          = "PQC_READY"
 NO_CRYPTO_DEP      = "NO_CRYPTO_DEP"
 
-# Priority for composite judgment (pessimistic: lowest = worst)
-RISK_PRIORITY = {
-    QUANTUM_VULNERABLE: 0,
-    HYBRID:             1,
-    PQC_READY:          2,
-    NO_CRYPTO_DEP:      3,
-}
-
-def composite_posture(posture_list):
-    """Return the worst-case posture across all linked libraries."""
-    return min(posture_list, key=lambda p: RISK_PRIORITY.get(p, 0))
 
 PQC_LIBRARY_DB = {
 

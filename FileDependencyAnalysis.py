@@ -72,10 +72,19 @@ class FileDependencyAnalysis(BaseAnalysis):
 
     def _extract_version(self, lib_path):
         """
-        Extract version tuple (major, minor, patch) from crypto library.
-        Strategy 1: parse version from realpath soname
-        Strategy 2: parse version string from ELF .comment section
-        Returns tuple e.g. (1, 1, 1) or None if not found.
+        Extract version tuple (major, minor, patch) from a crypto library binary.
+
+        Strategy 0: scan .comment, .rodata, .data.rel.ro for library-prefixed version
+                    strings (e.g. "OpenSSL 3.0.13", "wolfSSL 5.7.2").
+                    Avoids false matches from compiler version strings (e.g. GCC 13.3.0).
+        Strategy 1: parse version from the realpath soname
+                    (e.g. libcrypto.so.1.1.1 -> (1,1,1), libcrypto.so.3 -> (3,0,0)).
+                    Skipped for wolfSSL because its soname encodes ABI version, not
+                    library version.
+        Strategy 3: wolfSSL fallback — search .rodata/.data.rel.ro for a bare version
+                    string (e.g. "5.7.2") when no prefixed pattern is found.
+
+        Returns a tuple e.g. (3, 0, 13) or None if no version could be determined.
         """
         if lib_path is None:
             return None

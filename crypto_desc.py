@@ -1,31 +1,5 @@
 import re
-import pprint
-from elftools.elf.elffile import ELFFile
-def list_dynsym(elf, filters):
-    with open(elf, 'rb') as f:
-        elf = ELFFile(f)
 
-        symbol_names = []
-        
-        # Find the .dynsym section
-        dynsym_section = elf.get_section_by_name('.dynsym')
-        if not dynsym_section:
-            return
-        
-        for symbol in dynsym_section.iter_symbols():
-            #code.interact(local=locals())
-            if symbol['st_info']['type'] != 'STT_FUNC':
-                continue
-
-            if any(x in symbol.name for x in filters): 
-                if 'OBJECT' not in symbol.name:
-                    symbol_names.append(symbol.name)
-        return symbol_names
-        
-
-#openssl_filters = ["RSA", "EC", "DSA", "DH"]
-
-#openssl_APIs = list_dynsym("/usr/lib/x86_64-linux-gnu/libcrypto.so.1.1", openssl_filters)
 openssl11_APIs = ['DH_security_bits', 'i2d_RSAPublicKey', 'PEM_read_RSAPublicKey', 'ECDSA_SIG_free', 'DH_new_method', 'd2i_RSAPublicKey_bio', 'ASN1_UNIVERSALSTRING_to_string', 'PEM_write_RSA_PUBKEY', 
                 'EC_KEY_OpenSSL', 'RSA_print', 'RSA_padding_check_PKCS1_OAEP_mgf1', 'DSA_get0_priv_key', 'RSA_bits', 'RSA_clear_flags', 'DSA_verify', 'ENGINE_get_default_DSA', 'i2d_RSAPublicKey_bio', 
                 'DH_get0_g', 'DHparams_print_fp', 'd2i_RSAPublicKey', 'DH_get0_p', 'DH_get0_q', 'd2i_DSA_PUBKEY_fp', 'RSA_meth_set_priv_enc', 'RSA_flags', 'i2o_ECPublicKey', 'EC_GROUP_get0_cofactor', 
@@ -86,10 +60,6 @@ openssl11 = {
     'APIs': openssl11_APIs,
     'elfname': 'libcrypto.so.1.1*'
 }
-
-
-#openssl3_APIs = list_dynsym("/home/oak/Git/PQDetector/pqscan/openssl-3.3.1/libcrypto.so", ["PKEY"])
-#pprint.pp(openssl3_APIs, indent=4)
 
 openssl3_APIs = ['EVP_PKEY_get_int_param',
     'EVP_PKEY_add1_attr_by_OBJ',
@@ -582,10 +552,6 @@ wolfssl = {
 }
 
 
-
-#mbedtls_APIs = list_dynsym("/home/oak/Git/PQDetector/pqscan/mbedtls/build/library/libmbedcrypto.so", ["mbedtls_dhm", "mbedtls_ecdsa", "mbedtls_rsa"])
-#pprint.pp(mbedtls_APIs, indent=4)
-
 mbedtls_APIs = ['mbedtls_rsa_rsassa_pss_verify',
     'mbedtls_rsa_export',
     'mbedtls_rsa_rsassa_pss_sign',
@@ -658,6 +624,3 @@ mbedtls = {
 }
 
 CRYPTO_LIB = [openssl11, openssl3, wolfssl, mbedtls]
-#CRYPTO_LIB = [openssl3]
-
-#print(openssl11_APIs)
