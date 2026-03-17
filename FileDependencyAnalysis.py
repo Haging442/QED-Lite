@@ -82,22 +82,25 @@ class FileDependencyAnalysis(BaseAnalysis):
         if lib_path is None:
             return None
 
-        # Strategy 0: search for known library version strings in .comment section
-        # This avoids matching compiler version (e.g. GCC 13.3.0) instead of lib version
-        COMMENT_VERSION_PATTERNS = [
-            r'wolfSSL[_ ](\d+)\.(\d+)\.(\d+)',
-            r'OpenSSL[_ ](\d+)\.(\d+)\.(\d+)',
+        # Strategy 0: search for known library version strings in .comment and .rodata
+        # Scanning both sections here avoids matching compiler versions (e.g. GCC 13.3.0)
+        # and ensures OpenSSL/wolfSSL version strings are found before soname parsing.
+        LIB_VERSION_PATTERNS = [
+            r'wolfSSL[_ ]v?(\d+)\.(\d+)\.(\d+)',
+            r'OpenSSL[_ ](\d+)\.(\d+)\.(\d+)[a-z]?',
             r'mbedTLS[_ ](\d+)\.(\d+)\.(\d+)',
             r'Botan[_ ](\d+)\.(\d+)\.(\d+)',
         ]
         try:
             with open(lib_path, 'rb') as f:
                 elf = ELFFile(f)
-                sec = elf.get_section_by_name('.comment')
-                if sec:
-                    comment = sec.data().decode('utf-8', errors='ignore')
-                    for pattern in COMMENT_VERSION_PATTERNS:
-                        m = re.search(pattern, comment)
+                for section_name in ['.comment', '.rodata', '.data.rel.ro']:
+                    sec = elf.get_section_by_name(section_name)
+                    if not sec:
+                        continue
+                    text = sec.data().decode('utf-8', errors='ignore')
+                    for pattern in LIB_VERSION_PATTERNS:
+                        m = re.search(pattern, text)
                         if m:
                             return (int(m.group(1)), int(m.group(2)), int(m.group(3)))
         except Exception:
@@ -121,30 +124,18 @@ class FileDependencyAnalysis(BaseAnalysis):
         except Exception:
             pass
 
-        # Strategy 3: scan .rodata section for library version string
+        # Strategy 3: wolfSSL fallback — plain version string (e.g. "5.7.2") in .rodata
+        # wolfSSL embeds version without library prefix between null bytes
         try:
-            with open(lib_path, 'rb') as f:
-                elf = ELFFile(f)
-                for section_name in ['.rodata', '.data.rel.ro']:
-                    sec = elf.get_section_by_name(section_name)
-                    if not sec:
-                        continue
-                    raw = sec.data()
-                    text = raw.decode('utf-8', errors='ignore')
-                    # Try library-prefixed patterns first
-                    for pattern in [
-                        r'wolfSSL[_ ]v?(\d+)\.(\d+)\.(\d+)',
-                        r'OpenSSL[_ ](\d+)\.(\d+)\.(\d+)',
-                        r'mbedTLS[_ ](\d+)\.(\d+)\.(\d+)',
-                        r'Botan[_ ](\d+)\.(\d+)\.(\d+)',
-                    ]:
-                        m = re.search(pattern, text)
-                        if m:
-                            return (int(m.group(1)), int(m.group(2)), int(m.group(3)))
-                    # Fallback: null-terminated version string for wolfSSL
-                    # wolfSSL embeds version as plain "5.7.2" between null bytes
-                    so_basename = os.path.basename(lib_path)
-                    if 'wolfssl' in so_basename.lower():
+            so_basename = os.path.basename(lib_path)
+            if 'wolfssl' in so_basename.lower():
+                with open(lib_path, 'rb') as f:
+                    elf = ELFFile(f)
+                    for section_name in ['.rodata', '.data.rel.ro']:
+                        sec = elf.get_section_by_name(section_name)
+                        if not sec:
+                            continue
+                        text = sec.data().decode('utf-8', errors='ignore')
                         for m in re.finditer(r'(\d+)\.(\d+)\.(\d+)', text):
                             major = int(m.group(1))
                             minor = int(m.group(2))
