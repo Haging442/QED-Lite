@@ -2,7 +2,6 @@ import subprocess
 import os
 import re
 from elftools.elf.elffile import ELFFile
-import time
 from BaseAnalysis import BaseAnalysis
 from version_db import (
     QUANTUM_VULNERABLE, HYBRID, PQC_READY, NO_CRYPTO_DEP,
@@ -20,7 +19,6 @@ class FileDependencyAnalysis(BaseAnalysis):
         self.dep_graph = {}
 
         self._ldconfig_cache = self._build_ldconfig_cache()
-        self.dep_dict = {}   # {elf_path: [dep_path, ...]} replaces DiGraph
 
     def _build_ldconfig_cache(self):
         # Run ldconfig -p once and cache as {lib_name: full_path}
@@ -386,43 +384,3 @@ class FileDependencyAnalysis(BaseAnalysis):
             if path:
                 paths.append(path)
         return paths if paths else None
-
-    def get_filenames_from_paths(paths):
-        return [os.path.basename(p) for p in paths]
-
-
-if __name__ == "__main__":
-    import time
-    import sys
-    from crypto_desc import CRYPTO_LIB
-    import cProfile, io, pstats
-
-    start = time.time()
-    crypto_lib_desc = CRYPTO_LIB
-
-    args = sys.argv[1:]
-
-    if len(args) == 0:
-        output_dir = 'out-coreutils'
-        scan_folder = '/home/oak/Git/PQDetector/cryptolibs/'
-        scan_folder = '/home/oak/Git/openssl/oak'
-    else:
-        output_dir = args[0]
-        scan_folder = args[1]
-
-    os.makedirs(output_dir, exist_ok=True)
-
-    analysis = FileDependencyAnalysis(scan_folder, crypto_lib_desc, verbose=1)
-
-    pr = cProfile.Profile()
-    pr.enable()
-
-    analysis.gen_report(output_dir)
-
-    pr.disable()
-    s = io.StringIO()
-    ps = pstats.Stats(pr, stream=s).sort_stats('cumtime')
-    ps.print_stats()
-
-    with open(os.path.join(output_dir, 'result.prof'), 'w+') as f:
-        f.write(s.getvalue())
