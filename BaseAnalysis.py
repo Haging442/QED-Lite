@@ -1,11 +1,7 @@
 import os
 import json
 import re
-from networkx.drawing.nx_agraph import graphviz_layout
-import matplotlib.pyplot as plt
-import networkx as nx
 import subprocess
-import pickle
 
 class BaseAnalysis(object):
     def __init__(self, scan_folder, crypto_lib_desc, verbose=0):
@@ -30,28 +26,6 @@ class BaseAnalysis(object):
         if output_folder is not None:
             with open(os.path.join(output_folder, report_name), "w+") as f:
                 f.write(json.dumps(report, indent=4))
-
-
-    def draw_graph(self, graph, show=True):
-        mapping = {node: os.path.basename(node) for node in graph.nodes()}
-        color_map = []
-        new_graph = nx.relabel_nodes(graph, mapping)
-        crypto_lib_base = [os.path.basename(x) for x in self.crypto_lib]
-        elf_files_base = [os.path.basename(x) for x in self.elf_files]
-        for node in new_graph:
-            if node in crypto_lib_base:
-                color_map.append('orange')
-            elif node in elf_files_base:
-                color_map.append('skyblue')
-            else:
-                color_map.append('yellow')
-
-        pos = graphviz_layout(new_graph, prog='dot', args="-Grankdir=LR")
-        plt.clf()
-
-        nx.draw(new_graph, pos=pos, with_labels=True, node_color=color_map, node_size=2000, arrows=True, font_size=8)
-        if show:
-            plt.show()
 
 
     def _file_type(self, f):
