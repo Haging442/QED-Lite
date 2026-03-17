@@ -1,5 +1,3 @@
-import re
-
 openssl11_APIs = ['DH_security_bits', 'i2d_RSAPublicKey', 'PEM_read_RSAPublicKey', 'ECDSA_SIG_free', 'DH_new_method', 'd2i_RSAPublicKey_bio', 'ASN1_UNIVERSALSTRING_to_string', 'PEM_write_RSA_PUBKEY', 
                 'EC_KEY_OpenSSL', 'RSA_print', 'RSA_padding_check_PKCS1_OAEP_mgf1', 'DSA_get0_priv_key', 'RSA_bits', 'RSA_clear_flags', 'DSA_verify', 'ENGINE_get_default_DSA', 'i2d_RSAPublicKey_bio', 
                 'DH_get0_g', 'DHparams_print_fp', 'd2i_RSAPublicKey', 'DH_get0_p', 'DH_get0_q', 'd2i_DSA_PUBKEY_fp', 'RSA_meth_set_priv_enc', 'RSA_flags', 'i2o_ECPublicKey', 'EC_GROUP_get0_cofactor', 
@@ -56,7 +54,6 @@ openssl11_APIs = ['DH_security_bits', 'i2d_RSAPublicKey', 'PEM_read_RSAPublicKey
 
 openssl11 = {
     'libname': 'openSSL1.1',
-    #'APIs': ['AES_encrypt', 'AES_decrypt', 'RSA_sign', 'RSA_verify'],
     'APIs': openssl11_APIs,
     'elfname': 'libcrypto.so.1.1*'
 }
