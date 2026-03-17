@@ -26,6 +26,7 @@ if __name__ == "__main__":
     import sys
     import cProfile, io, pstats
     from FileDependencyAnalysis import FileDependencyAnalysis
+    from migration_guide import generate_guide
     import resource
 
     start = time.time()
@@ -46,12 +47,14 @@ if __name__ == "__main__":
 
     analysis = FileDependencyAnalysis(scan_folder, crypto_lib_desc, verbose=1)
 
-    _, cont = run_analysis(analysis, output_folder, os.path.join(output_folder, 'result.prof'))
+    report, cont = run_analysis(analysis, output_folder, os.path.join(output_folder, 'result.prof'))
 
     print('Max RAM Usage', resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
 
     if not cont:
         print('No QV files found. Exiting.')
         exit(0)
+
+    generate_guide(report["report"], output_folder)
 
     print("Done. Exiting...")

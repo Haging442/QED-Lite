@@ -333,9 +333,7 @@ class FileDependencyAnalysis(BaseAnalysis):
 
     def _gen_sw_dep_graph(self):
         self.checked = set()
-        for idx, elf in enumerate(self.elf_files):
-            if self.verbose and idx % 100 == 0:
-                print(idx, "/", len(self.elf_files), "checked")
+        for elf in self.elf_files:
             self._gen_sw_dep_graph_helper(elf, elf, 0, 5)
 
     def _gen_sw_dep_graph_helper(self, root, elf, cur_depth=0, max_depth=5):
