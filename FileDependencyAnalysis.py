@@ -291,7 +291,7 @@ class FileDependencyAnalysis(BaseAnalysis):
         }
 
         if output_folder is not None:
-            self.write_report(full_report, "dependency.txt", output_folder)
+            self.write_report(full_report, "result.json", output_folder)
 
         return full_report
 
@@ -435,5 +435,5 @@ if __name__ == "__main__":
     ps = pstats.Stats(pr, stream=s).sort_stats('cumtime')
     ps.print_stats()
 
-    with open(os.path.join(output_dir, 'dependency.prof'), 'w+') as f:
+    with open(os.path.join(output_dir, 'result.prof'), 'w+') as f:
         f.write(s.getvalue())

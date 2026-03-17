@@ -46,7 +46,7 @@ if __name__ == "__main__":
 
     analysis = FileDependencyAnalysis(scan_folder, crypto_lib_desc, verbose=1)
 
-    _, cont = run_analysis(analysis, output_folder, os.path.join(output_folder, 'dependency.prof'))
+    _, cont = run_analysis(analysis, output_folder, os.path.join(output_folder, 'result.prof'))
 
     print('Max RAM Usage', resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
 
