@@ -81,7 +81,7 @@ class FileDependencyAnalysis(BaseAnalysis):
                     (e.g. libcrypto.so.1.1.1 -> (1,1,1), libcrypto.so.3 -> (3,0,0)).
                     Skipped for wolfSSL because its soname encodes ABI version, not
                     library version.
-        Strategy 3: wolfSSL fallback — search .rodata/.data.rel.ro for a bare version
+        Strategy 2: wolfSSL fallback — search .rodata/.data.rel.ro for a bare version
                     string (e.g. "5.7.2") when no prefixed pattern is found.
 
         Returns a tuple e.g. (3, 0, 13) or None if no version could be determined.
@@ -131,7 +131,7 @@ class FileDependencyAnalysis(BaseAnalysis):
         except Exception:
             pass
 
-        # Strategy 3: wolfSSL fallback — plain version string (e.g. "5.7.2") in .rodata
+        # Strategy 2: wolfSSL fallback — plain version string (e.g. "5.7.2") in .rodata
         # wolfSSL embeds version without library prefix between null bytes
         try:
             so_basename = os.path.basename(lib_path)
